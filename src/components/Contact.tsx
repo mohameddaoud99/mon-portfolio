@@ -1,68 +1,76 @@
 import React, { useState } from "react";
-import { submitContactForm } from "@/services/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { useForm } from "react-hook-form";
+
+// Interface pour les données du formulaire
+interface FormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  access_key: string;
+  botcheck?: boolean;
+}
 
 const Contact = () => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
   const [loading, setLoading] = useState(false);
+  
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<FormData>({
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+      access_key: "9562f177-8efb-477a-9a1f-3f6befbdf4cf" // Remplacez par votre clé Web3Forms
+    }
+  });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setLoading(true);
-
+    
     try {
-      // Check if Firebase configuration is set up
-      if (import.meta.env.VITE_FIREBASE_API_KEY) {
-        await submitContactForm(formData);
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
         toast({
-          title: "Message Sent",
-          description: "Thank you! Your message has been sent successfully.",
+          title: "Message envoyé",
+          description: "Merci ! Votre message a été envoyé avec succès.",
           variant: "default",
         });
+        
+        // Réinitialiser le formulaire
+        reset();
       } else {
-        // Simulate submission for demo purposes
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         toast({
-          title: "Demo Mode",
-          description:
-            "This is a demo. In a real app, your message would be sent to Firebase.",
-          variant: "default",
+          title: "Erreur",
+          description: result.message || "Une erreur s'est produite lors de l'envoi de votre message.",
+          variant: "destructive",
         });
       }
-
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-      });
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Erreur lors de l'envoi du formulaire :", error);
       toast({
-        title: "Error",
-        description:
-          "There was an error sending your message. Please try again.",
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de l'envoi de votre message. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
@@ -171,24 +179,37 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Contact Form */}
-          {/* <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
+          {/* Contact Form - Web3Forms Integration */}
+          <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
             <h3 className="text-2xl font-bold text-portfolio-dark-blue mb-6">Send Me a Message</h3>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Champ caché pour Web3Forms access key */}
+              <input type="hidden" {...register("access_key")} />
+              
+              {/* Honeypot pour protéger contre le spam */}
+              <input
+                type="checkbox"
+                className="hidden"
+                style={{ display: "none" }}
+                {...register("botcheck")}
+              />
+              
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-portfolio-dark-gray mb-1">
                   Full Name
                 </label>
                 <Input
                   id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
+                  {...register("name", {
+                    required: "Full name is required"
+                  })}
+                  className={`w-full ${errors.name ? "border-red-500" : ""}`}
                   placeholder="Your name"
-                  className="w-full"
                 />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name.message?.toString()}</p>
+                )}
               </div>
               
               <div>
@@ -197,14 +218,20 @@ const Contact = () => {
                 </label>
                 <Input
                   id="email"
-                  name="email"
                   type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^\S+@\S+$/i,
+                      message: "Please enter a valid email address"
+                    }
+                  })}
+                  className={`w-full ${errors.email ? "border-red-500" : ""}`}
                   placeholder="your.email@example.com"
-                  className="w-full"
                 />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email.message?.toString()}</p>
+                )}
               </div>
               
               <div>
@@ -213,13 +240,15 @@ const Contact = () => {
                 </label>
                 <Input
                   id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
+                  {...register("subject", {
+                    required: "Subject is required"
+                  })}
+                  className={`w-full ${errors.subject ? "border-red-500" : ""}`}
                   placeholder="What is this regarding?"
-                  className="w-full"
                 />
+                {errors.subject && (
+                  <p className="mt-1 text-sm text-red-500">{errors.subject.message?.toString()}</p>
+                )}
               </div>
               
               <div>
@@ -228,13 +257,15 @@ const Contact = () => {
                 </label>
                 <Textarea
                   id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
+                  {...register("message", {
+                    required: "Message is required"
+                  })}
+                  className={`w-full min-h-[150px] ${errors.message ? "border-red-500" : ""}`}
                   placeholder="Your message here..."
-                  className="w-full min-h-[150px]"
                 />
+                {errors.message && (
+                  <p className="mt-1 text-sm text-red-500">{errors.message.message?.toString()}</p>
+                )}
               </div>
               
               <Button 
@@ -245,7 +276,7 @@ const Contact = () => {
                 {loading ? 'Sending...' : 'Send Message'}
               </Button>
             </form>
-          </div> */}
+          </div>
         </div>
       </div>
     </section>

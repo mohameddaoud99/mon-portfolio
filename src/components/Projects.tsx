@@ -40,7 +40,7 @@ const Projects = () => {
     {
       id: "1",
       title:
-        "Design, development and deploiement of a Web application dedicated to managing annual employee interviews",
+        "Design, development and deploiement of a Web application dedicated to managing annual employee interviews.",
       description:
         "Designed, developed, and deployed a web application for managing annual employee interviews, tailored to the company’s hierarchical structure. The system models interview processes using BPMN concepts and automates workflows for smoother management. It ensures structured interview tracking and reduces manual interventions. The solution improves efficiency by minimizing administrative workload. Overall, it enhances accuracy and reduces human errors in HR operations.",
       imageUrl: "../images/pfeCycle.PNG",
@@ -54,8 +54,8 @@ const Projects = () => {
         "Docker",
         "Agile Scrum",
       ],
-      liveUrl: "https://example.com/ecommerce",
-      githubUrl: "https://github.com/username/ecommerce",
+      //liveUrl: "https://example.com/ecommerce",
+      githubUrl: "https://github.com/mohameddaoud99/performa-app",
       featured: true,
     },
     {
@@ -72,8 +72,8 @@ const Projects = () => {
         "Atomic Design",
         "Agile Scrum",
       ],
-      liveUrl: "https://example.com/taskmanager",
-      githubUrl: "https://github.com/username/taskmanager",
+      //liveUrl: "https://example.com/taskmanager",
+      githubUrl: "https://github.com/mohameddaoud99/CoodApp",
       featured: true,
     },
     {
@@ -92,7 +92,7 @@ const Projects = () => {
         "SQL Server",
         "MySQL",
       ],
-      githubUrl: "https://github.com/username/weather-app",
+      githubUrl: "https://github.com/mohameddaoud99/pointing-system",
       featured: false,
     },
     {
@@ -108,8 +108,8 @@ const Projects = () => {
         "Flutter",
         "SQL Server",
       ],
-      liveUrl: "https://example.com/portfolio-gen",
-      githubUrl: "https://github.com/username/portfolio-generator",
+      //liveUrl: "https://example.com/portfolio-gen",
+      githubUrl: "https://github.com/mohameddaoud99/payroll-management-module",
       featured: true,
     },
   ];

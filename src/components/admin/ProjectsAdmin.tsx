@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { getProjects, addDocument, updateDocument, deleteDocument, uploadFile } from '@/services/firebase';
+import { getProjects, addDocument, updateDocument, deleteDocument, uploadFile } from "../../services/firebase";
 import { ProjectData } from '@/types/admin';
 import { Plus, Pencil, Trash } from 'lucide-react';
 

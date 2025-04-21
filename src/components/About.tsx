@@ -15,21 +15,6 @@ const About = () => {
   const [about, setAbout] = useState<AboutData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAboutData = async () => {
-      try {
-        const aboutData = await getAboutMe();
-        setAbout(aboutData);
-      } catch (error) {
-        console.error("Error fetching about data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAboutData();
-  }, []);
-
   // Fallback data in case Firebase isn't configured yet
   const fallbackData: AboutData = {
     id: "1",
@@ -58,6 +43,36 @@ const About = () => {
     ],
     photoUrl: "../images/profil.png",
   };
+
+  useEffect(() => {
+    const fetchAboutData = async () => {
+      try {
+        const data = await getAboutMe();
+        if (data) {
+          // Treating the data as any to bypass type checking initially
+          const rawData = data as any;
+          
+          // Create a properly typed object
+          const mappedData: AboutData = {
+            id: rawData.id || fallbackData.id,
+            name: rawData.name || fallbackData.name,
+            title: rawData.title || fallbackData.title,
+            bio: rawData.bio || fallbackData.bio,
+            skills: Array.isArray(rawData.skills) ? rawData.skills : fallbackData.skills,
+            photoUrl: rawData.photoUrl || rawData.imageUrl || fallbackData.photoUrl
+          };
+          
+          setAbout(mappedData);
+        }
+      } catch (error) {
+        console.error("Error fetching about data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAboutData();
+  }, []);
 
   const displayData = about || fallbackData;
 
